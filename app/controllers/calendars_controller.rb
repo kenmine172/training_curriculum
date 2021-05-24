@@ -8,7 +8,6 @@ class CalendarsController < ApplicationController
 
   # 予定の保存
   def create
-    binding.pry
     Plan.create(plan_params)
     redirect_to action: :index
   end
@@ -17,6 +16,9 @@ class CalendarsController < ApplicationController
 
   def plan_params
     params.require(:plan).permit(:date, :plan)
+    # Parameters: {"authenticity_token"=>"cZj5x2r5/3rCf7aTPuwzgDeffe5h7mX2iRULzoPemU8An+9A41vlLqxkssNxBneTYJLV1LS8PoituU3v8soqZg==", "plan"=>{"date"=>"2021-05-30", "plan"=>"冨樫"}, "commit"=>"保存"}
+    # .requireは２重ハッシュの外側のキーを記述する。いきなり取りにはいけないので狙いを定める。例）params[:plan]
+    # .permit実際にとる。.requireで指定したキーの中にあるハッシュデータの中身を取りたい。例）params[:plan][:date] , params[:plan][:plan]
   end
 
   def get_week
@@ -35,11 +37,12 @@ class CalendarsController < ApplicationController
         today_plans.push(plan.plan) if plan.date == @todays_date + x
       end
 
-      wday_num = 6
+      
+      wday_num = Date.today.wday
     if 
       wday_num = wday_num -7
     end
-      days = { :month => (@todays_date + x).month, :date => (@todays_date + x).day, :plans => today_plans, :wday => wdays + [x]}
+      days = { month: (@todays_date + x).month, date: (@todays_date + x).day, plans: today_plans, wday: wdays[wday_num]}#wdays[3]=>'(水)' , wdays[wday_num]
       @week_days.push(days)
     end
 
